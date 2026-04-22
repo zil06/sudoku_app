@@ -173,8 +173,6 @@ public AuthController(UserRepository userRepo, BCryptPasswordEncoder encoder) {
 
 ---
 
----
-
 ## 6. GAE環境でログイン時の印刷プレビューが500エラーになる問題
 ### 現象
 
@@ -182,6 +180,7 @@ public AuthController(UserRepository userRepo, BCryptPasswordEncoder encoder) {
 本番環境（GAE）：未ログイン状態では正常、ログイン状態で印刷プレビューに遷移すると500エラー
 
 ### エラーログ
+
 [SQLITE_READONLY] Attempt to write a readonly database
 (attempt to write a readonly database)
 
@@ -191,20 +190,14 @@ GAE（Google App Engine）のファイルシステムは読み取り専用のた
 
 ### 解決策（暫定対応）
 SudokuController.javaの印刷履歴保存処理をコメントアウトして、INSERTをスキップ。
-java// GAEのファイルシステムは読み取り専用のため履歴保存を一時無効化
+java// GAEのファイルシステムは読み取り専用のため、履歴保存機能を一時無効化して対処。
+
+```java
 // User user = (User) session.getAttribute("loginUser");
 // if (user != null) {
-//     sudokuService.savePrintHistory(user, problems);
+// sudokuService.savePrintHistory(user, problems);
 // }
+```
 
 印刷履歴保存機能を本番環境で動かすには、書き込み可能な有料DBへの移行が必要なため、今後の課題として記録。
 例：Google Cloud SQL
-
-
-## 難易度の定義（要件定義書より）
-
-| 難易度 | 空きマス数 | difficulty値 |
-|--------|-----------|-------------|
-| 初級   | 〜39個    | EASY        |
-| 中級   | 40〜45個  | MEDIUM      |
-| 上級   | 46〜50個  | HARD        |
