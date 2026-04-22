@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>印刷プレビュー | 数独問題集</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/print.css}">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="page-print">
+
+  <!-- 画面表示用のみ（印刷時は非表示） -->
+  <div class="print-toolbar no-print">
+    <a th:href="@{/problems}" class="btn btn--ghost">← 問題に戻る</a>
+    <button onclick="window.print()" class="btn btn--primary">🖨 印刷する</button>
+  </div>
+
+  <!-- ===== 問題ページ ===== -->
+  <div class="print-page print-page--problems">
+    <header class="print-header">
+      <h1 class="print-title">数　独　問　題　集</h1>
+      <p class="print-date" id="printDate"></p>
+    </header>
+
+    <div class="print-problems-grid">
+      <div class="print-problem" th:each="problem, stat : ${problems}">
+        <h2 class="print-problem-title"
+            th:text="'問題 ' + ${stat.count} + '　（No.' + ${problem.problemId} + '）'">
+          問題 1
+        </h2>
+        <table class="sudoku-grid sudoku-grid--print">
+          <tbody>
+            <tr th:each="row : ${#numbers.sequence(0, 8)}">
+              <td
+                th:each="col : ${#numbers.sequence(0, 8)}"
+                th:with="idx=${row * 9 + col},
+                        val=${#strings.substring(problem.problemData, idx, idx + 1)}"
+                th:class="${val == '0'} ? 'cell cell--empty' : 'cell cell--given'"
+                th:classappend="${(col == 2 or col == 5) and (row == 2 or row == 5)} ? ' cell--border-right cell--border-bottom' :
+                              (${col == 2 or col == 5} ? ' cell--border-right' :
+                              (${row == 2 or row == 5} ? ' cell--border-bottom' : ''))"
+                th:text="${val == '0'} ? '' : ${val}">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 解答ページ（改ページ後） ===== -->
+  <div class="print-page print-page--answers page-break-before">
+    <header class="print-header">
+      <h1 class="print-title">解　答</h1>
+    </header>
+
+    <div class="print-problems-grid">
+      <div class="print-problem" th:each="problem, stat : ${problems}">
+        <h2 class="print-problem-title"
+            th:text="'問題 ' + ${stat.count} + '　の解答'">
+          問題 1 の解答
+        </h2>
+        <table class="sudoku-grid sudoku-grid--print sudoku-grid--answer">
+          <tbody>
+            <tr th:each="row : ${#numbers.sequence(0, 8)}">
+              <td
+                th:each="col : ${#numbers.sequence(0, 8)}"
+                th:with="idx=${row * 9 + col},
+                        pval=${#strings.substring(problem.problemData, idx, idx + 1)},
+                        aval=${#strings.substring(problem.answerData, idx, idx + 1)}"
+                th:class="${pval == '0'} ? 'cell cell--answer-filled' : 'cell cell--given'"
+                th:classappend="${(col == 2 or col == 5) and (row == 2 or row == 5)} ? ' cell--border-right cell--border-bottom' :
+                              (${col == 2 or col == 5} ? ' cell--border-right' :
+                              (${row == 2 or row == 5} ? ' cell--border-bottom' : ''))"
+                th:text="${aval}">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 今日の日付を表示
+    const d = new Date();
+    document.getElementById('printDate').textContent =
+      d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+  </script>
+
+</body>
+</html>

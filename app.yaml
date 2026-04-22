@@ -1,3 +1,2 @@
-runtime:java17
-env:standard
-instance_class:F1
+runtime: java17
+instance_class: F1

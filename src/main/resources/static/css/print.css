@@ -1,0 +1,160 @@
+/* ===================================================
+   数独問題集 - 印刷用スタイルシート
+   A4縦 / 2問＋解答ページ構成
+=================================================== */
+
+/* ── 画面表示時のプレビューレイアウト ─────────────── */
+.page-print {
+  background: #f0ece6;
+  padding: 2rem 1rem;
+}
+
+.print-toolbar {
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.print-page {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  background: white;
+  box-shadow: 0 4px 24px rgba(26,26,46,0.15);
+  padding: 3rem 3.5rem;
+  min-height: 297mm; /* A4 */
+}
+
+/* ── 印刷ヘッダー ─────────────────────────────────── */
+.print-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #1a1a2e;
+}
+
+.print-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  font-family: 'Noto Serif JP', serif;
+}
+
+.print-date {
+  font-size: 0.85rem;
+  color: #8a7f72;
+  margin-top: 0.3rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── 問題グリッド（2問横並び） ──────────────────────── */
+/* .print-problems-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+} */
+
+/* ── 問題グリッド（2問縦並び） ──────────────────────── */
+.print-problems-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  max-width: 420px;   /* A4縦に適したサイズ */
+  margin: 0 auto;
+}
+
+.print-problem { }
+
+.print-problem-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.7rem;
+  color: #3d3d5c;
+}
+
+/* ── 印刷用数独グリッド ─────────────────────────────── */
+.sudoku-grid--print {
+  width: 100%;
+  border-collapse: collapse;
+  aspect-ratio: 1;
+  border: 2.5px solid #1a1a2e !important;
+}
+
+.sudoku-grid--print td.cell {
+  border: 1px solid #c8bfb0;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 1.05rem;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 600;
+  width: 11.1%;
+  height: 2.6rem;
+  min-height: 2.6rem;
+}
+
+.sudoku-grid--print .cell--border-right {
+  border-right: 2.5px solid #1a1a2e !important;
+}
+.sudoku-grid--print .cell--border-bottom {
+  border-bottom: 2.5px solid #1a1a2e !important;
+}
+
+/* 解答グリッド：埋められた数字を青で表示 */
+.sudoku-grid--answer .cell--answer-filled {
+  color: #2e5f8b;
+  font-weight: 700;
+}
+
+/* ── 改ページ制御 ─────────────────────────────────── */
+.page-break-before { page-break-before: always; }
+
+/* ====================================================
+   @media print — 実際の印刷時
+==================================================== */
+@media print {
+
+  /* 画面専用要素を非表示 */
+  .no-print { display: none !important; }
+
+  body {
+    background: white;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-print {
+    background: white;
+    padding: 0;
+  }
+
+  /* 各ページをA4として出力 */
+  .print-page {
+    max-width: none;
+    box-shadow: none;
+    margin: 0;
+    padding: 15mm 15mm;
+    min-height: auto;
+    page-break-after: always;
+  }
+
+  /* 最後のページは改ページしない */
+  .print-page:last-child { page-break-after: avoid; }
+
+  /* 解答ページは必ず新ページ */
+  .print-page--answers { page-break-before: always; }
+
+  /* グリッド内で改ページしない */
+  .print-problem { page-break-inside: avoid; }
+
+  /* フォントサイズ調整 */
+  .print-title { font-size: 1.4rem; }
+  .sudoku-grid--print td.cell { font-size: 0.9rem; }
+
+  /* 印刷時の余白設定 */
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
+  }
+}

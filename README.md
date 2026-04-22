@@ -1,39 +1,104 @@
-# 数独問題集アプリ (Sudoku App)
-知人のお母様の「複数問題をまとめて印刷したい」という悩みを解消するために開発した、数独問題の管理・印刷Webアプリケーションです。
+# ▼テスト中▼　数独問題集アプリ — セットアップガイド
 
-## 公開URL
-https://javasilvertest.an.r.appspot.com/sudoku
+## 構成ファイル一覧
 
-## プロジェクト概要
-既存の数独サイトでは難しかった「複数問題の一括印刷」に特化しています。Java Silverで培ったオブジェクト指向の知識と、Spring Bootによる効率的なWeb開発を組み合わせて構築しています。
+```
+sudoku/
+├── pom.xml                          # Maven依存関係
+├── src/main/
+│   ├── java/com/sudoku/
+│   │   ├── SudokuApplication.java   # 起動クラス
+│   │   ├── controller/
+│   │   │   ├── SudokuController.java  # 問題表示・印刷・マイページ
+│   │   │   └── AuthController.java    # ログイン・ログアウト
+│   │   ├── model/
+│   │   │   ├── SudokuProblem.java
+│   │   │   ├── User.java
+│   │   │   └── PrintHistory.java
+│   │   ├── repository/
+│   │   │   ├── SudokuProblemRepository.java
+│   │   │   ├── UserRepository.java
+│   │   │   └── PrintHistoryRepository.java
+│   │   └── service/
+│   │       └── SudokuService.java
+│   └── resources/
+│       ├── application.properties   # DB接続設定
+│       ├── data.sql                 # サンプルデータ
+│       └── templates/               # Thymeleafテンプレート
+│           ├── index.html           # トップ（難易度選択）
+│           ├── problems.html        # 問題表示（2問）
+│           ├── print.html           # 印刷プレビュー
+│           ├── login.html           # ログイン
+│           └── mypage.html          # 印刷履歴
+│       └── static/css/
+│           ├── style.css            # メインスタイル
+│           └── print.css            # 印刷用スタイル
+```
 
-## 使用技術
-### Backend
-- Java 21 (LTS)
-- Spring Boot 3.x
-- Spring Data JPA
-- Spring Security (認証・認可)
-- JUnit 5 (単体テスト)
+---
 
-### Frontend
-- Thymeleaf (テンプレートエンジン)
-- Bootstrap 5 (UIフレームワーク)
-- CSS @media print (印刷レイアウト制御)
+## セットアップ手順
 
-### Database / Infra
-- SQLite (開発・MVP運用)
-- Google App Engine (GAE)
-- GitHub Actions (CI/CD 拡張予定)
+### 1. MySQLデータベースの準備
 
-## 主な機能
-- **難易度別ランダム出題**: 初級・中級・上級から問題をランダムに抽出
-- **印刷最適化レイアウト**: 1ページ2問の固定配置と、解答まとめページの自動生成
-- **ユーザー認証**: 印刷履歴保存のためのログイン機能
-- **管理者機能（実装予定）**: 問題データの追加・編集・削除(CRUD)
+```sql
+-- MySQLにログイン後、data.sqlを実行
+mysql -u root -p < src/main/resources/data.sql
+```
 
-## アーキテクチャ
-- **3層アーキテクチャ**: Controller / Service / Repository の分離による保守性の確保
-- **セキュリティ**: パスワードのBCryptハッシュ化、CSRF対策の実施
+### 2. application.properties の編集
 
-## ✒️ Author
-zil06 ([GitHub](https://github.com/zil06))
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/sudoku_db?...
+spring.datasource.username=root
+spring.datasource.password=【あなたのMySQLパスワード】
+```
+
+### 3. アプリの起動
+
+```bash
+./mvnw spring-boot:run
+```
+
+ブラウザで http://localhost:8080 にアクセス。
+
+---
+
+## サンプルアカウント
+
+| ユーザー名 | パスワード |
+|-----------|----------|
+| mama      | password123 |
+| admin     | password123 |
+
+---
+
+## 画面遷移
+
+```
+/ (トップ)
+ └─ 難易度選択 → /problems?difficulty=EASY|MEDIUM|HARD
+                  └─ 印刷プレビュー → /print
+                                       └─ window.print()
+
+/login → /mypage（印刷履歴一覧）
+```
+
+---
+
+## 今後の拡張ポイント
+
+1. **問題の自動生成** — バックトラッキングアルゴリズムで数独を自動生成し、DBに追加登録するバッチ処理を実装
+2. **用紙サイズ自動調整** — `@page { size: A4 }` を動的に切り替えるJSを追加
+3. **印刷済みチェック** — マイページで「印刷済み」バッジを問題一覧に表示
+4. **Spring Security 導入** — 現在は簡易セッション認証。本番はSpring Securityに移行推奨
+
+---
+
+## 難易度の定義（要件定義書より）
+
+| 難易度 | 空きマス数 | difficulty値 |
+|--------|-----------|-------------|
+| 初級   | 〜39個    | EASY        |
+| 中級   | 40〜45個  | MEDIUM      |
+| 上級   | 46〜50個  | HARD        |
