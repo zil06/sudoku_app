@@ -5,6 +5,8 @@
 ## 公開URL
 https://javasilvertest.an.r.appspot.com/
 
+## 開発記録
+ [docs/ ディレクトリ](./docs/) 参照
 ---
 
 ## プロジェクト概要

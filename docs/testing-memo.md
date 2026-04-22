@@ -89,7 +89,6 @@ sqlite3 sudoku.db 'INSERT OR IGNORE INTO users (username, password_hash) VALUES 
 | admin     | password123|
 
 > 初回はハッシュ再生成が必要、BCryptのハッシュはアプリ起動時に生成したものを使用。
-
 > 外部で生成したハッシュを流用すると照合に失敗する場合あり。
 
 
