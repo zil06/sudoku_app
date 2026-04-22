@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserRepository userRepo;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder encoder;
 
-    public AuthController(UserRepository userRepo) {
+    public AuthController(UserRepository userRepo, BCryptPasswordEncoder encoder) {
         this.userRepo = userRepo;
+        this.encoder = encoder;
     }
 
     // ── ログイン画面 ────────────────────────────────────
-
     @GetMapping("/login")
     public String loginForm() {
         return "login";
@@ -43,7 +43,6 @@ public class AuthController {
     }
 
     // ── ログアウト ──────────────────────────────────────
-
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();

@@ -1,4 +1,4 @@
- ▼テスト中▼ 数独問題集アプリ — セットアップガイド
+# ▼テスト中▼ 数独問題集アプリ — セットアップガイド
 
 ## 構成ファイル一覧
 
@@ -7,7 +7,7 @@ sudoku/
 ├── pom.xml                          # Maven依存関係
 ├── src/main/
 │   ├── java/com/sudoku/
-│   │   ├── SudokuApplication.java   # 起動クラス・BCryptBean定義
+│   │   ├── SudokuApplication.java   # 起動クラス
 │   │   ├── controller/
 │   │   │   ├── SudokuController.java  # 問題表示・印刷・マイページ
 │   │   │   └── AuthController.java    # ログイン・ログアウト
@@ -39,33 +39,16 @@ sudoku/
 
 ## セットアップ手順
 
-### 1. アプリの起動（初回）
+### 1. データベースの準備（SQLite）
+
+テーブルはSpring Boot起動時にHibernateが自動生成します。
+問題データのINSERT文は手動で流す必要があります。
 
 ```bash
-./mvnw spring-boot:run
-```
-
-起動時にHibernateがSQLiteのテーブルを自動生成します。
-**起動ログに出力されるBCryptハッシュをコピーしておいてください**（手順2で使用）。
-
-```
-=== HASH ===
-$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-============
-```
-
-> ハッシュ確認後は`SudokuApplication.java`のハッシュ生成コードを削除して再起動してください。
-
----
-
-### 2. データの投入
-
-アプリ起動後、別ターミナルで以下を実行してください。
-
-**サンプル問題データの投入**
-
-```bash
-cat > /tmp/insert_problems.sql << 'EOF'
+# INSERT文をSQLiteのDBファイルに流す
+cat > /tmp/insert_data.sql << 'EOF'
+INSERT OR IGNORE INTO users (username, password_hash) VALUES ('mama', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy');
+INSERT OR IGNORE INTO users (username, password_hash) VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy');
 INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('EASY', '530070000600195000098000060800060003400803001700020006060000280000419005000080079', '534678912672195348198342567859761423426853791713924856961537284287419635345286179');
 INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('EASY', '200080300060070084030500209000105408000000000402706000301007040720040060004010003', '214986375963271584837524209679135428518492637452768910391657842725843961146319753');
 INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('EASY', '000000907000420180000705026100904000050000040000507009920108000034059000507000000', '462831957375429186198765326126943578853672491749517839926188743634259817517384962');
@@ -82,24 +65,13 @@ INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VA
 INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('HARD', '000300000006000910000000000700009600020040000000017000050006002000000005400200000', '175398246836524917942761358713849625628453781584217639357986124261134895498275863');
 INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('HARD', '000006000059000008200008000045000000003000600000003040006000075010040000000100200', '734956182659712438218348967845179326973284651162593847486921375317465829592137264');
 EOF
-sqlite3 sudoku.db < /tmp/insert_problems.sql
+sqlite3 sudoku.db < /tmp/insert_data.sql
 ```
 
-**ユーザーデータの投入**
-
-手順1でコピーしたハッシュを使って登録します。
-
-```bash
-# 【ハッシュ】の部分を手順1のログに出力されたハッシュに置き換えて実行
-sqlite3 sudoku.db 'INSERT OR IGNORE INTO users (username, password_hash) VALUES ("mother", "【ハッシュ】");'
-sqlite3 sudoku.db 'INSERT OR IGNORE INTO users (username, password_hash) VALUES ("admin", "【ハッシュ】");'
-```
-
-**投入確認**
+データが正しく投入されたか確認します。
 
 ```bash
 sqlite3 sudoku.db "SELECT difficulty, COUNT(*) FROM sudoku_problems GROUP BY difficulty;"
-sqlite3 sudoku.db "SELECT user_id, username FROM users;"
 ```
 
 以下のように表示されれば成功です。
@@ -108,14 +80,11 @@ sqlite3 sudoku.db "SELECT user_id, username FROM users;"
 EASY|5
 HARD|5
 MEDIUM|5
-
-1|mother
-2|admin
 ```
 
----
+### 2. application.properties の確認
 
-### 3. application.properties の確認
+SQLite用に以下の設定になっていることを確認してください。
 
 ```properties
 spring.datasource.url=jdbc:sqlite:sudoku.db
@@ -125,9 +94,7 @@ spring.jpa.hibernate.ddl-auto=update
 spring.thymeleaf.cache=false
 ```
 
----
-
-### 4. アプリの起動
+### 3. アプリの起動
 
 ```bash
 ./mvnw spring-boot:run
@@ -137,15 +104,12 @@ spring.thymeleaf.cache=false
 
 ---
 
-## ログインアカウント
+## サンプルアカウント
 
 | ユーザー名 | パスワード |
 |-----------|----------|
-| mother    | （手順1で設定したパスワード） |
-| admin     | （手順1で設定したパスワード） |
-
-> ⚠️ BCryptのハッシュはアプリ起動時に生成したものを使用してください。
-> 外部で生成したハッシュを流用すると照合に失敗する場合があります。
+| mama      | password123 |
+| admin     | password123 |
 
 ---
 
@@ -159,6 +123,20 @@ spring.thymeleaf.cache=false
 
 /login → /mypage（印刷履歴一覧）
 ```
+
+---
+
+## 公開・修正履歴
+| 項目 | 内容 |
+|var0.1------|------|
+|ホームページ|公開テスト用の仮ページをアップロード|
+|var0.2------|------|
+|ホームページ|本番環境テスト用のwebページに差し替え|
+| ランダム取得クエリ | `ORDER BY RAND()` → `ORDER BY RANDOM()` に変更 |
+| 問題表示レイアウト | 横2列 → 縦1列に変更 |
+| 空行の高さ | `height` 固定指定で空きマスのみの行が潰れる問題を修正 |
+| 3×3区切り線 | 外枠と同じ太さ・色の太線に変更 |
+| Thymeleaf構文 | `th:class` と `th:classappend` を分離してパースエラーを解消 |
 
 ---
 
@@ -192,20 +170,4 @@ spring.thymeleaf.cache=false
 5 3 0 | 0 7 0 | 0 0 0
 6 0 0 | 1 9 5 | 0 0 0
 ...
-```
-
-## 公開・修正履歴
-| 項目 | 内容 |
-| var0.1------|------|
-| ホームページ | 公開テスト用の仮ページをアップロード|
-| var0.2------|------|
-| ホームページ | 本番環境テスト用のwebページに差し替え|
-| ランダム取得クエリ | `ORDER BY RAND()` → `ORDER BY RANDOM()` に変更 |
-| 問題表示レイアウト | 横2列 → 縦1列に変更 |
-| 空行の高さ | `height` 固定指定で空きマスのみの行が潰れる問題を修正 |
-| 3×3区切り線 | 外枠と同じ太さ・色の太線に変更 |
-| Thymeleaf構文 | `th:class` と `th:classappend` を分離してパースエラーを解消 |
-| var0.3------|------|
-| ログイン機能 | パスワードのハッシュ照合ができない問題を解消|
-
 ```
