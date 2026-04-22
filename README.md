@@ -1,151 +1,42 @@
- ▼テスト中▼ 数独問題集アプリ — セットアップガイド
+# 数独問題集アプリ (Sudoku App)
 
-## 構成ファイル一覧
+知人のお母様の「複数問題をまとめて印刷したい」という悩みを解消するために開発した、数独問題の管理・印刷用Webアプリケーションです。
 
-```
-sudoku/
-├── pom.xml                          # Maven依存関係
-├── src/main/
-│   ├── java/com/sudoku/
-│   │   ├── SudokuApplication.java   # 起動クラス・BCryptBean定義
-│   │   ├── controller/
-│   │   │   ├── SudokuController.java  # 問題表示・印刷・マイページ
-│   │   │   └── AuthController.java    # ログイン・ログアウト
-│   │   ├── model/
-│   │   │   ├── SudokuProblem.java
-│   │   │   ├── User.java
-│   │   │   └── PrintHistory.java
-│   │   ├── repository/
-│   │   │   ├── SudokuProblemRepository.java
-│   │   │   ├── UserRepository.java
-│   │   │   └── PrintHistoryRepository.java
-│   │   └── service/
-│   │       └── SudokuService.java
-│   └── resources/
-│       ├── application.properties   # DB接続設定
-│       ├── data.sql                 # サンプルデータ（SQLite用）
-│       └── templates/               # Thymeleafテンプレート
-│           ├── index.html           # トップ（難易度選択）
-│           ├── problems.html        # 問題表示（2問・縦並び）
-│           ├── print.html           # 印刷プレビュー
-│           ├── login.html           # ログイン
-│           └── mypage.html          # 印刷履歴
-│       └── static/css/
-│           ├── style.css            # メインスタイル
-│           └── print.css            # 印刷用スタイル
-```
+## 公開URL
+https://javasilvertest.an.r.appspot.com/
 
 ---
 
-## セットアップ手順
+## プロジェクト概要
 
-### 1. アプリの起動（初回）
+既存の数独サイトでは難しかった「複数問題の一括印刷」に特化しています。Java Silverで培ったオブジェクト指向の知識と、Spring Bootによる効率的なWeb開発を組み合わせて構築しています。
 
-```bash
-./mvnw spring-boot:run
-```
+## 使用技術
 
-起動時にHibernateがSQLiteのテーブルを自動生成します。
-**起動ログに出力されるBCryptハッシュをコピーしておいてください**（手順2で使用）。
+### Backend
+- Java 21 (LTS)
+- Spring Boot 3.x
+- Spring Data JPA
+- Spring Security (認証・認可)
 
-```
-=== HASH ===
-$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-============
-```
+### Frontend
+- Thymeleaf (テンプレートエンジン)
+- CSS @media print (印刷レイアウト制御)
 
-> ハッシュ確認後は`SudokuApplication.java`のハッシュ生成コードを削除して再起動してください。
+### Database / Infra
+- SQLite (開発・MVP運用)
+- Google App Engine (GAE)
 
----
+## 主な機能
 
-### 2. データの投入
+- **難易度別ランダム出題** — 初級・中級・上級から問題をランダムに抽出
+- **印刷最適化レイアウト** — 1ページ2問の縦配置と、解答まとめページの自動生成
+- **ユーザー認証** — 印刷履歴保存のためのログイン機能
 
-アプリ起動後、別ターミナルで以下を実行してください。
+## アーキテクチャ
 
-**サンプル問題データの投入**
-
-```bash
-cat > /tmp/insert_problems.sql << 'EOF'
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('EASY', '530070000600195000098000060800060003400803001700020006060000280000419005000080079', '534678912672195348198342567859761423426853791713924856961537284287419635345286179');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('EASY', '200080300060070084030500209000105408000000000402706000301007040720040060004010003', '214986375963271584837524209679135428518492637452768910391657842725843961146319753');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('EASY', '000000907000420180000705026100904000050000040000507009920108000034059000507000000', '462831957375429186198765326126943578853672491749517839926188743634259817517384962');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('EASY', '600120384008459072000006005000264030070080006036047000400800700003900200209710800', '671529384538459672492306815851264937724983156936147528465831279713695248289712863');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('EASY', '730000000000600800004000000060010000008007306000340000001830000070005000090000050', '738942561512637849394581627263719485158427396479356218621893174847265913985174352');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('MEDIUM', '000000000000003085001804000000070600080000030006900000000401690000050000008006000', '987654321246173985531894267329571648815246739674938512752489163463715892198362475');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('MEDIUM', '000075400000000008080190000300001060000000034000068170204000603900000020530200000', '693875412145632798782194356358941267269357834471268179824719635916483521537526984');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('MEDIUM', '430000000000000531000000000610000000000006900204000080000041650005700000000008002', '432985716978612531651347928613894275785236941294571386827149653345768219169528472');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('MEDIUM', '000801000000000043500000000000070800000000100020030000600000075003400000000200600', '239841567718659243546372918491765832372918154825034796964283475183497621657526389');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('MEDIUM', '700500000020070008005008000600000070000602000030000006000800500400030090000007004', '748523961321479658965138427612945873879612345534786216296841537485237192173569784');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('HARD', '800000000003600000070090200060005030004008010000006000052000009000419005000000800', '812753649943682175675491238168945837734128916521367482452836791387219564296574813');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('HARD', '000000000000003800000050070000020060080000400600000000500400030009000200000890000', '354197682672583814918254673741328965285619437693742518527461389439875261861932457');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('HARD', '000004000000000700700038000000010040006000050500000001000800000040000000091007003', '385694172612473798794538261239715846476829350568342917153876429847261530921057683');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('HARD', '000300000006000910000000000700009600020040000000017000050006002000000005400200000', '175398246836524917942761358713849625628453781584217639357986124261134895498275863');
-INSERT OR IGNORE INTO sudoku_problems (difficulty, problem_data, answer_data) VALUES ('HARD', '000006000059000008200008000045000000003000600000003040006000075010040000000100200', '734956182659712438218348967845179326973284651162593847486921375317465829592137264');
-EOF
-sqlite3 sudoku.db < /tmp/insert_problems.sql
-```
-
-**ユーザーデータの投入**
-
-手順1でコピーしたハッシュを使って登録します。
-
-```bash
-# 【ハッシュ】の部分を手順1のログに出力されたハッシュに置き換えて実行
-sqlite3 sudoku.db 'INSERT OR IGNORE INTO users (username, password_hash) VALUES ("mother", "【ハッシュ】");'
-sqlite3 sudoku.db 'INSERT OR IGNORE INTO users (username, password_hash) VALUES ("admin", "【ハッシュ】");'
-```
-
-**投入確認**
-
-```bash
-sqlite3 sudoku.db "SELECT difficulty, COUNT(*) FROM sudoku_problems GROUP BY difficulty;"
-sqlite3 sudoku.db "SELECT user_id, username FROM users;"
-```
-
-以下のように表示されれば成功です。
-
-```
-EASY|5
-HARD|5
-MEDIUM|5
-
-1|mother
-2|admin
-```
-
----
-
-### 3. application.properties の確認
-
-```properties
-spring.datasource.url=jdbc:sqlite:sudoku.db
-spring.datasource.driver-class-name=org.sqlite.JDBC
-spring.jpa.properties.hibernate.dialect=org.hibernate.community.dialect.SQLiteDialect
-spring.jpa.hibernate.ddl-auto=update
-spring.thymeleaf.cache=false
-```
-
----
-
-### 4. アプリの起動
-
-```bash
-./mvnw spring-boot:run
-```
-
-ブラウザで http://localhost:8080 にアクセス。
-
----
-
-## ログインアカウント
-
-| ユーザー名 | パスワード |
-|-----------|----------|
-| mother    | （手順1で設定したパスワード） |
-| admin     | （手順1で設定したパスワード） |
-
-> ⚠️ BCryptのハッシュはアプリ起動時に生成したものを使用してください。
-> 外部で生成したハッシュを流用すると照合に失敗する場合があります。
+- **3層アーキテクチャ** — Controller / Service / Repository の分離による保守性の確保
+- **セキュリティ** — パスワードのBCryptハッシュ化
 
 ---
 
@@ -162,50 +53,66 @@ spring.thymeleaf.cache=false
 
 ---
 
-## 今後の拡張ポイント
+## テスト用ログインアカウント
 
-1. **問題の自動生成** — バックトラッキングアルゴリズムで数独を自動生成し、DBに追加登録するバッチ処理を実装
-2. **用紙サイズ自動調整** — `@page { size: A4 }` を動的に切り替えるJSを追加
-3. **印刷済みチェック** — マイページで「印刷済み」バッジを問題一覧に表示
-4. **Spring Security 導入** — 現在は簡易セッション認証。本番はSpring Securityに移行推奨
-
----
-
-## 難易度の定義（要件定義書より）
-
-| 難易度 | 空きマス数 | difficulty値 |
-|--------|-----------|-------------|
-| 初級   | 〜39個    | EASY        |
-| 中級   | 40〜45個  | MEDIUM      |
-| 上級   | 46〜50個  | HARD        |
+| ユーザー名 | パスワード |
+|-----------|----------|
+| mother    | password123|
+| admin     | password123|
 
 ---
 
-## 問題データの形式
-
-`sudoku_problems`テーブルの`problem_data`・`answer_data`は81文字のStringで管理します。
-左上のマスから右下に向かって1文字ずつ格納し、`0`は空きマスを表します。
+## 構成ファイル一覧
 
 ```
-例）530070000600195000... （81文字）
-    ↓
-5 3 0 | 0 7 0 | 0 0 0
-6 0 0 | 1 9 5 | 0 0 0
-...
+sudoku/
+├── pom.xml
+├── src/main/
+│   ├── java/com/sudoku/
+│   │   ├── SudokuApplication.java     # 起動クラス・BCryptBean定義
+│   │   ├── controller/
+│   │   │   ├── SudokuController.java  # 問題表示・印刷・マイページ
+│   │   │   └── AuthController.java    # ログイン・ログアウト
+│   │   ├── model/
+│   │   │   ├── SudokuProblem.java
+│   │   │   ├── User.java
+│   │   │   └── PrintHistory.java
+│   │   ├── repository/
+│   │   │   ├── SudokuProblemRepository.java
+│   │   │   ├── UserRepository.java
+│   │   │   └── PrintHistoryRepository.java
+│   │   └── service/
+│   │       └── SudokuService.java
+│   └── resources/
+│       ├── application.properties
+│       ├── data.sql
+│       └── templates/
+│           ├── index.html
+│           ├── problems.html
+│           ├── print.html
+│           ├── login.html
+│           └── mypage.html
+│       └── static/css/
+│           ├── style.css
+│           └── print.css
+└── docs/
+    ├── troubleshooting.md  # 苦労したエラーと解決策
+    ├── dev-log.md          # 開発日誌
+    └── testing-memo.md     # 動作テスト記録
 ```
 
-## 公開・修正履歴
-| 項目 | 内容 |
-| var0.1------|------|
-| ホームページ | 公開テスト用の仮ページをアップロード|
-| var0.2------|------|
-| ホームページ | 本番環境テスト用のwebページに差し替え|
-| ランダム取得クエリ | `ORDER BY RAND()` → `ORDER BY RANDOM()` に変更 |
-| 問題表示レイアウト | 横2列 → 縦1列に変更 |
-| 空行の高さ | `height` 固定指定で空きマスのみの行が潰れる問題を修正 |
-| 3×3区切り線 | 外枠と同じ太さ・色の太線に変更 |
-| Thymeleaf構文 | `th:class` と `th:classappend` を分離してパースエラーを解消 |
-| var0.3------|------|
-| ログイン機能 | パスワードのハッシュ照合ができない問題を解消|
+---
 
-```
+## 今後の拡張検討項目
+
+1. **問題の自動生成** — バックトラッキングアルゴリズムで数独を自動生成するバッチ処理
+2. **用紙サイズ自動調整** — `@page { size: A4 }` を動的に切り替えるJS
+3. **印刷済みチェック** — マイページで「印刷済み」バッジを表示
+4. **Spring Security 導入** — 現在は簡易セッション認証のみ。印刷履歴以外の管理機能追加時に対応検討
+5. **アカウント管理機能** — 新規作成・パスワード変更機能の実装検討
+6. **印刷履歴管理機能** — 印刷済みの問題を自動で記録・新規表示対象から除外する機能の実装検討
+---
+
+## ✒️ Author
+
+zil06 ([GitHub](https://github.com/zil06))

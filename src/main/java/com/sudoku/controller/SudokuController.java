@@ -1,15 +1,18 @@
 package com.sudoku.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.sudoku.model.SudokuProblem;
 import com.sudoku.model.User;
 import com.sudoku.service.SudokuService;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class SudokuController {
@@ -73,10 +76,11 @@ public class SudokuController {
         model.addAttribute("problems", problems);
 
         // ログイン済みなら履歴保存
-        User user = (User) session.getAttribute("loginUser");
-        if (user != null) {
-            sudokuService.savePrintHistory(user, problems);
-        }
+        // ＞SQLiteでは実装できない機能(本番環境のsudoku.dbファイルは読み込み専用で記録不可)のため、一旦コメントアウト
+        // User user = (User) session.getAttribute("loginUser");
+        // if (user != null) {
+        //     sudokuService.savePrintHistory(user, problems);
+        // }
 
         return "print";
     }
