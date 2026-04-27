@@ -6,7 +6,7 @@
 https://javasilvertest.an.r.appspot.com/
 
 ## 開発記録
-[docs/ ディレクトリ](./docs/)内の以下ファイル参照
+[docs/ ディレクトリ](./docs/)内の以下ファイル参照\n
 　troubleshooting.md  # 遭遇したエラーと対処の記録
 　dev-log.md          # 開発日誌
 　testing-memo.md     # 動作テスト記録
