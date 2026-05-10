@@ -39,14 +39,6 @@
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
 
-    <!-- MySQL -->
-    <!--追々切替検討
-    <dependency>
-      <groupId>com.mysql</groupId>
-      <artifactId>mysql-connector-j</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-     -->
 
     <!-- SQLite -->
     <dependency>
@@ -57,12 +49,6 @@
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-community-dialects</artifactId>
-    </dependency>
-
-    <!-- BCrypt（パスワードハッシュ） -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-crypto</artifactId>
     </dependency>
 
     <!--  Thymeleaf Extras（#temporals）  -->

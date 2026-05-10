@@ -12,11 +12,6 @@
   <header class="site-header">
     <div class="header-inner">
       <a th:href="@{/}" class="logo">数独問題集</a>
-      <nav class="header-nav">
-        <a th:if="${session.loginUser}" th:href="@{/mypage}" class="nav-link">マイページ</a>
-        <a th:if="${session.loginUser}" th:href="@{/logout}" class="nav-link nav-link--logout">ログアウト</a>
-        <a th:unless="${session.loginUser}" th:href="@{/login}" class="nav-link nav-link--login">ログイン</a>
-      </nav>
     </div>
   </header>
 
@@ -24,7 +19,7 @@
     <!-- ページタイトル & アクション -->
     <div class="page-toolbar">
       <div class="toolbar-left">
-        <a th:href="@{/}" class="btn btn--ghost">← 難易度選択に戻る</a>
+        <a th:href="@{/}" class="btn btn--ｓ">← 難易度選択に戻る</a>
         <span class="badge"
               th:classappend="${difficulty == 'EASY'} ? 'badge--easy' : (${difficulty == 'MEDIUM'} ? 'badge--medium' : 'badge--hard')"
               th:text="${difficulty == 'EASY'} ? '初級' : (${difficulty == 'MEDIUM'} ? '中級' : '上級')">
@@ -48,9 +43,9 @@
         <table class="sudoku-grid">
           <tbody>
             <!--
-              Thymeleafでは81文字のStringを直接9×9に分割するのが難しいため、
-              JavaScriptで描画するか、ControllerでList<List<Integer>>に変換して渡す方法を推奨。
-              ここではJSでのレンダリング例を示す。
+              Thymeleafでは81文字のStringを直接9×9に分割するのが難しいらしい
+              ＞JavaScriptで描画するか、ControllerでList<List<Integer>>に変換して渡す方法が推奨？
+              →今回はJSのレンダリング例を実装
             -->
             <tr th:each="row : ${#numbers.sequence(0, 8)}">
               <td
@@ -69,11 +64,6 @@
       </div>
     </div>
 
-    <!-- 注意書き -->
-    <p class="print-note" th:unless="${session.loginUser}">
-      ※ ログインすると印刷履歴が保存されます。
-      <a th:href="@{/login}">ログインはこちら</a>
-    </p>
   </main>
 
   <footer class="site-footer">

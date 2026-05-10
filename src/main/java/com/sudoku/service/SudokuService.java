@@ -1,25 +1,17 @@
 package com.sudoku.service;
 
-import com.sudoku.model.PrintHistory;
 import com.sudoku.model.SudokuProblem;
-import com.sudoku.model.User;
-import com.sudoku.repository.PrintHistoryRepository;
 import com.sudoku.repository.SudokuProblemRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
 public class SudokuService {
 
     private final SudokuProblemRepository problemRepo;
-    private final PrintHistoryRepository historyRepo;
 
-    public SudokuService(SudokuProblemRepository problemRepo,
-                         PrintHistoryRepository historyRepo) {
+    public SudokuService(SudokuProblemRepository problemRepo) {
         this.problemRepo = problemRepo;
-        this.historyRepo = historyRepo;
     }
 
     /**
@@ -39,25 +31,5 @@ public class SudokuService {
      */
     public List<SudokuProblem> getByIds(List<Long> ids) {
         return problemRepo.findAllById(ids);
-    }
-
-    /**
-     * 印刷履歴を保存する
-     */
-    @Transactional
-    public void savePrintHistory(User user, List<SudokuProblem> problems) {
-        for (SudokuProblem p : problems) {
-            PrintHistory history = new PrintHistory();
-            history.setUser(user);
-            history.setProblem(p);
-            historyRepo.save(history);
-        }
-    }
-
-    /**
-     * ユーザーの印刷履歴一覧（新しい順）
-     */
-    public List<PrintHistory> getHistory(Long userId) {
-        return historyRepo.findByUserUserIdOrderByPrintedAtDesc(userId);
     }
 }

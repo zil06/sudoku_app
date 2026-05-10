@@ -14,14 +14,6 @@
   <header class="site-header">
     <div class="header-inner">
       <h1 class="logo">数独問題集</h1>
-      <nav class="header-nav">
-        <span th:if="${session.loginUser}" class="welcome-msg">
-          <span th:text="${session.loginUser.username}"></span> さん
-        </span>
-        <a th:if="${session.loginUser}" th:href="@{/mypage}" class="nav-link">マイページ</a>
-        <a th:if="${session.loginUser}" th:href="@{/logout}" class="nav-link nav-link--logout">ログアウト</a>
-        <a th:unless="${session.loginUser}" th:href="@{/login}" class="nav-link nav-link--login">ログイン</a>
-      </nav>
     </div>
   </header>
 
@@ -40,8 +32,7 @@
           <div class="card-icon">☆</div>
           <div class="card-body">
             <h3 class="card-title">初　級</h3>
-            <p class="card-desc">空きマス 〜39個</p>
-            <p class="card-note">数独はじめての方にも</p>
+            <p class="card-note">数独がはじめての方へ</p>
           </div>
           <span class="card-arrow">→</span>
         </a>
@@ -51,8 +42,7 @@
           <div class="card-icon">★</div>
           <div class="card-body">
             <h3 class="card-title">中　級</h3>
-            <p class="card-desc">空きマス 40〜45個</p>
-            <p class="card-note">ちょうどいい歯ごたえ</p>
+            <p class="card-note">ちょっと難しめ</p>
           </div>
           <span class="card-arrow">→</span>
         </a>
@@ -62,8 +52,7 @@
           <div class="card-icon">★★</div>
           <div class="card-body">
             <h3 class="card-title">上　級</h3>
-            <p class="card-desc">空きマス 46〜50個</p>
-            <p class="card-note">本格派の方へ</p>
+            <p class="card-note">歯ごたえが欲しい方へ</p>
           </div>
           <span class="card-arrow">→</span>
         </a>
