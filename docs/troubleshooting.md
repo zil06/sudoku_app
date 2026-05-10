@@ -222,3 +222,29 @@ spring.sql.init.mode=always
 ```
 
 ---
+
+## 8. 再デプロイ後に、webサイトが表示されないエラー発生
+### 現象
+ローカル環境（Google Cloud Shell）では正常に動作するが、GAEにデプロイすると「Service Unavailable」となり、Webサイトが表示されない。
+
+### 調査過程
+gcloud app logs tail コマンドで本番環境のログを確認したところ、以下のエラーが出力されていた。
+
+```Plaintext
+Caused by: org.sqlite.SQLiteException: [SQLITE_CANTOPEN] (No such file or directory)
+path to 'sudoku.db': '/home/vmagent/app/sudoku.db'
+```
+
+### 原因
+GAEの実行環境において、データベースファイル（sudoku.db）が実行プログラム（jar）と同じ階層に見つからなかったため、Spring Bootの起動プロセスが中断していた。
+
+### 解決策
+データベースファイル（sudoku.db）の配置場所をプロジェクトルートから src/main/resources/ ディレクトリに移動し、ビルド時にクラスパス内に含まれるよう構成を変更した。
+また、 application.properties のデータソースURLを、クラスパス内のリソースを直接参照する形式に変更した。
+
+```Properties
+# 修正後：クラスパス内のSQLiteファイルを参照
+spring.datasource.url=jdbc:sqlite::resource:sudoku.db
+```
+
+---
