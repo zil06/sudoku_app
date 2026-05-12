@@ -77,7 +77,7 @@ sudoku/
 │   │   │   └── service/
 │   │   │       └── SudokuService.java     # ビジネスロジック(問題抽出)
 │   │   └── resources/
-│   │       ├── sudoku.db                  # SQLiteデータベース
+│   │       ├── sudoku.db                  # 問題文取り込みテスト用SQLiteデータベース
 │   │       ├── application.properties     # SQLite・JPA設定
 │   │       ├── data.sql                   # ブラウザ表示用の数独問題データ
 │   │       └── templates/
